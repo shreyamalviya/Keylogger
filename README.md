@@ -7,8 +7,8 @@ EDIT: All keypresses are emailed to specified address (default: self) depending 
 
 # Design
 
-The diagram describes the general mechanism for fetching event info for all devices.
+The following diagram describes the general mechanism for fetching the event info for a device.
 
-![](images/design.png)
+<img src="images/design.png" width="500">
 
-Currently only fetching event info from a keyboard is supported. 
+Currently, only fetching event info for the keyboard is supported. 
